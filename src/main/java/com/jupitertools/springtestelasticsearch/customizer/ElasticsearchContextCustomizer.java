@@ -20,7 +20,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 /**
  * Created on 26/11/2019
  * <p>
- * TODO: replace on the JavaDoc
+ * This ContextCustomizer starts the Elasticsearch docker image in tests.
  *
  * @author Korovin Anatoliy
  */

@@ -1,5 +1,3 @@
-:toc: preamble
-
 # Spring Test Elasticsearch
 
 Tools to write integration tests of Spring Framework with the Elasticsearch.

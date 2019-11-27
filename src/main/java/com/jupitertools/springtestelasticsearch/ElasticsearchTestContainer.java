@@ -17,5 +17,4 @@ import java.lang.annotation.Target;
 public @interface ElasticsearchTestContainer {
 
 
-    //String hostPortPropertyHolder() default "spring.data.elasticsearch.cluster-nodes";
 }

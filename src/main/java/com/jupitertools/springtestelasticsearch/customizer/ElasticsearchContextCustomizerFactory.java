@@ -12,7 +12,8 @@ import org.springframework.test.context.ContextCustomizerFactory;
 /**
  * Created on 26/11/2019
  * <p>
- * TODO: replace on the JavaDoc
+ * This ContextCustomizerFactory will start the docker image of the Elasticsearch
+ * if in tests used the @{@link ElasticsearchTestContainer} annotation.
  *
  * @author Korovin Anatoliy
  */

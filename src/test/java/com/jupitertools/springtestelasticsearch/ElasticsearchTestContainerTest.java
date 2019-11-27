@@ -3,6 +3,7 @@ package com.jupitertools.springtestelasticsearch;
 import java.util.UUID;
 
 import org.elasticsearch.index.query.QueryBuilders;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,49 +19,64 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created on 26/11/2019
- * <p>
- * TODO: replace on the JavaDoc
  *
  * @author Korovin Anatoliy
  */
 @SpringBootTest
 @ElasticsearchTestContainer
-class ElasticTest {
+class ElasticsearchTestContainerTest {
 
     @Autowired
     private ElasticsearchTemplate elasticsearchTemplate;
 
-    @Test
-    void name() {
-        assertThat(elasticsearchTemplate).isNotNull();
-    }
+    private static final UUID FIRST_ID = UUID.randomUUID();
+    private static final UUID SECOND_ID = UUID.randomUUID();
+    private static final String FIRST_DATA = "FIRST";
+    private static final String SECOND_DATA = "SECOND";
 
-    @Test
-    void initInner() {
+    @BeforeEach
+    void setUp() {
+        // prepare the Index of TestDocument
         elasticsearchTemplate.deleteIndex(TestDocument.class);
         elasticsearchTemplate.createIndex(TestDocument.class);
         elasticsearchTemplate.putMapping(TestDocument.class);
         elasticsearchTemplate.refresh(TestDocument.class);
 
-        TestDocument a = new TestDocument(UUID.randomUUID(), "AAAA");
-        TestDocument b = new TestDocument(UUID.randomUUID(), "BB");
+        // populate dataset
+        TestDocument first = new TestDocument(FIRST_ID, FIRST_DATA);
+        TestDocument second = new TestDocument(SECOND_ID, SECOND_DATA);
+        elasticsearchTemplate.index(new IndexQueryBuilder().withObject(first).build());
+        elasticsearchTemplate.index(new IndexQueryBuilder().withObject(second).build());
 
-        // Act
-        elasticsearchTemplate.index(new IndexQueryBuilder().withObject(a).build());
-        elasticsearchTemplate.index(new IndexQueryBuilder().withObject(b).build());
+        // flush
         elasticsearchTemplate.refresh(TestDocument.class);
-
-        // Assert
-        TestDocument readBackA =
-                elasticsearchTemplate.queryForObject(GetQuery.getById(a.getId().toString()), TestDocument.class);
-
-        NativeSearchQuery q = new NativeSearchQuery(QueryBuilders.matchAllQuery());
-        long count = elasticsearchTemplate.count(q, TestDocument.class);
-        assertThat(count).isEqualTo(2);
-
-        System.out.println(readBackA);
     }
 
+    @Test
+    void findById() {
+        // Arrange
+        GetQuery getQuery = GetQuery.getById(FIRST_ID.toString());
+        // Act
+        TestDocument first = elasticsearchTemplate.queryForObject(getQuery, TestDocument.class);
+        // Assert
+        assertThat(first).isNotNull()
+                         .extracting(TestDocument::getName)
+                         .isEqualTo(FIRST_DATA);
+    }
+
+    @Test
+    void countQuery() {
+        // Arrange
+        NativeSearchQuery countQuery = new NativeSearchQuery(QueryBuilders.matchAllQuery());
+        // Act
+        long count = elasticsearchTemplate.count(countQuery, TestDocument.class);
+        // Assert
+        assertThat(count).isEqualTo(2);
+    }
+
+    /**
+     * nested Elasticsearch document just for testing
+     */
     @Document(indexName = "test-document")
     private static class TestDocument {
 
