@@ -1,0 +1,43 @@
+:toc: preamble
+
+# Spring Test Elasticsearch
+
+Tools to write integration tests of Spring Framework with the Elasticsearch.
+
+## How to write integration tests on Spring Boot with Elasticsearch in docker
+
+Add this library in dependencies:
+
+[source,xml]
+----
+<dependency>
+    <groupId>com.jupiter-tools</groupId>
+    <artifactId>spring-test-elasticsearch</artifactId>
+    <version>0.1</version>
+</dependency>
+----
+
+Now, you can start the Elasticsearch cluster in a docker container(TestContainers) by the using of `@ElasticsearchTestContainer` annotation in tests:
+
+[source,java]
+----
+@ElasticsearchTestContainer
+@SpringBootTest
+class SpTestElasticTestAppApplicationTests {
+
+    @Autowired
+    private ElasticsearchTemplate elasticsearchTemplate;
+
+    @BeforeAll
+    static void setUp() {
+        // populate a data set in index
+    }
+
+    @Test
+    void findTest() {
+       var query = GetQuery.getById("100123");
+       Foo foo = elasticsearchTemplate.queryForObject(query, Foo.class);
+       assertThat(foo).isNotNull();
+    }
+}
+----
