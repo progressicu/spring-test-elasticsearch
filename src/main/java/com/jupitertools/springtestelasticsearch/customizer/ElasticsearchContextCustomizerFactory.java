@@ -1,8 +1,11 @@
 package com.jupitertools.springtestelasticsearch.customizer;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.jupitertools.springtestelasticsearch.ElasticsearchTestContainer;
+import com.jupitertools.springtestelasticsearch.ElasticsearchTestContainers;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.test.context.ContextConfigurationAttributes;
@@ -23,14 +26,17 @@ public class ElasticsearchContextCustomizerFactory implements ContextCustomizerF
     public ContextCustomizer createContextCustomizer(Class<?> testClass,
                                                      List<ContextConfigurationAttributes> list) {
 
-        ElasticsearchTestContainer annotation =
-                AnnotationUtils.getAnnotation(testClass, ElasticsearchTestContainer.class);
+        Set<ElasticsearchTestContainer> annotations =
+                AnnotationUtils.getRepeatableAnnotations(testClass,
+                                                         ElasticsearchTestContainer.class,
+                                                         ElasticsearchTestContainers.class);
 
-        if (annotation != null) {
-            return new ElasticsearchContextCustomizer();
-        } else {
-            // nothing to customize
-            return null;
-        }
+        Set<ContainerDescription> descriptions =
+                annotations.stream()
+                           .map(annotation -> new ContainerDescription(annotation.clusterNodesPropertyHolder(),
+                                                                       annotation.clusterNamePropertyHolder()))
+                           .collect(Collectors.toSet());
+
+        return new ElasticsearchContextCustomizer(descriptions);
     }
 }

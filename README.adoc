@@ -1,5 +1,8 @@
 # Spring Test Elasticsearch
 
+image:https://codecov.io/gh/jupiter-tools/spring-test-elasticsearch/branch/master/graph/badge.svg["", link="https://codecov.io/gh/jupiter-tools/spring-test-elasticsearch"]
+
+
 Tools to write integration tests of Spring Framework with the Elasticsearch.
 
 ## How to write integration tests on Spring Boot with Elasticsearch in docker
