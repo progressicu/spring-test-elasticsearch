@@ -29,7 +29,7 @@ import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
  */
 public class ElasticsearchContextCustomizer implements ContextCustomizer {
 
-    private static final String DOCKER_IMAGE_NAME = "docker.elastic.co/elasticsearch/elasticsearch:6.4.1";
+    private static final String DOCKER_IMAGE_NAME = "elasticsearch:8.4.3";
     private static final Logger log = LoggerFactory.getLogger(ElasticsearchContextCustomizer.class);
 
     private final Set<ContainerDescription> containerDescriptions;
@@ -56,6 +56,7 @@ public class ElasticsearchContextCustomizer implements ContextCustomizer {
             GenericContainer container =
                     new FixedHostPortGenericContainer<>(DOCKER_IMAGE_NAME)
                             .withExposedPorts(9200, 9300)
+                            .withReuse(true)
                             .withEnv("cluster.name", clusterName)
                             .withEnv("discovery.type", "single-node")
                             .waitingFor(waitStrategy);
@@ -77,7 +78,7 @@ public class ElasticsearchContextCustomizer implements ContextCustomizer {
 
     private String getHostPort(GenericContainer container) {
         return String.format("%s:%s",
-                             container.getContainerIpAddress(),
+                             container.getHost(),
                              container.getMappedPort(9300));
     }
 
